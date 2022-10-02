@@ -2,6 +2,12 @@
 #include <Arduino.h>
 #endif
 
+struct Data
+{
+  int PIN;
+  int ENABLED;
+};
+
 class SerialReceiver
 {
 public:
@@ -10,4 +16,5 @@ public:
   void checkForReceive();
 
 private:
+  void execute(Data *);
 };

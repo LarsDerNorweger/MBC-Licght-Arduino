@@ -11,7 +11,7 @@ SerialReceiver *ser;
 
 void setup()
 {
-  for (int i = 0; i < 14; i++)
+  for (int i = 0; i < 22; i++)
   {
     pinMode(i, OUTPUT);
     digitalWrite(i, HIGH);
