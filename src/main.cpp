@@ -1,29 +1,27 @@
 #include <Arduino.h>
 
-#ifndef Interpreter
+#ifndef Interpreter_h
 #include "Interpreter.h"
 #endif
 
-struct SerialData
-{
-  int PIN;
-  int MODE;
-  int VALUE;
-};
+#ifndef functions_h
+#include "functions.h"
+#endif
 
-Interpreter *inter = nullptr;
+int e = 0;
+unsigned long last = 0;
 
 void setup()
 {
   for (int i = 0; i < 22; i++)
     pinMode(i, OUTPUT);
-  Serial.begin(9600);
-  inter = new Interpreter();
+  Serial.begin(115200);
+  InitializeInterpreter();
 }
 
 void loop()
 {
   if (Serial.available())
-    inter->handleMessage();
-  inter->execute();
+    handleMessage();
+  execute();
 }
