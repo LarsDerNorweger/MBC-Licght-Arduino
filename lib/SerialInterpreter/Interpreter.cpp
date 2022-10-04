@@ -1,12 +1,24 @@
 #ifndef Arduino_h
 #include <Arduino.h>
 #endif
-#ifndef Interpreter
+
+#ifndef Interpreter_h
 #include "Interpreter.h"
 #endif
 
-Interpreter::Interpreter()
+#ifndef functions_ - h
+#include "functions.h"
+#endif
+
+PIN *PinConfiguration[PINCOUNT];
+STATES state = STATES::End;
+int ChangeDetected = 0;
+int count = 0;
+PIN *selectedPin = nullptr;
+
+void InitializeInterpreter()
 {
+  Serial.setTimeout(5);
   PIN *p;
   for (int i = PINCOUNT - 1; i >= 0; i--)
   {
@@ -14,37 +26,35 @@ Interpreter::Interpreter()
     p->delay = 0;
     p->enabled = 0;
     p->group = 0;
-    m_pins[i] = p;
+    p->lastSwitch = 0;
+    PinConfiguration[i] = p;
   }
 }
 
-void Interpreter::handleMessage()
+void handleMessage()
 {
   int inp = Serial.readString().toInt();
-  if (Next)
+  if (state == STATES::End)
   {
-    count++;
-    switch (state)
-    {
-    case setPIN:
-      Serial.println(setPin(inp));
-      break;
-
-    default:
-      Serial.println(States::Error);
-      break;
-    }
+    state = (STATES)inp;
+    Serial.println(STATES::next);
+    return;
   }
-  else
-  {
 
-    state = (States)inp;
-    Next = true;
-    Serial.println(States::next);
+  count++;
+  switch (state)
+  {
+  case setPIN:
+    Serial.println(setPin(inp));
+    break;
+
+  default:
+    Serial.println(STATES::UnkownCommand);
+    break;
   }
 }
 
-States Interpreter::setPin(int inp)
+STATES setPin(int inp)
 {
   switch (count)
   {
@@ -52,40 +62,39 @@ States Interpreter::setPin(int inp)
     if (inp < 0 || inp >= PINCOUNT)
     {
       end();
-      return States::Error;
+      return STATES::UnkownCommand;
     }
-    data = m_pins[inp];
-    return States::next;
+    selectedPin = PinConfiguration[inp];
+    return STATES::next;
 
   case 2:
-    data->enabled = inp;
-    return States::next;
+    selectedPin->enabled = inp;
+    return STATES::next;
 
   case 3:
-    data->delay = inp;
+    selectedPin->delay = inp;
     return end();
 
   default:
-    return States::Error;
+    return STATES::WrongArguments;
   }
 }
 
-void Interpreter::execute()
+void execute()
 {
-  if (!change)
-    return;
   for (int i = PINCOUNT - 1; i >= 0; i--)
   {
-    PIN *d = m_pins[i];
+    PIN *d = PinConfiguration[i];
+    if (d->delay > 0)
+      blink(i, d->delay, &d->enabled, &d->lastSwitch);
     digitalWrite(i, d->enabled ? HIGH : LOW);
   }
 }
 
-States Interpreter::end()
+STATES end()
 {
   count = 0;
-  state = End;
-  Next = false;
-  change = true;
-  return States::End;
+  state = STATES::End;
+  ChangeDetected = true;
+  return STATES::End;
 }

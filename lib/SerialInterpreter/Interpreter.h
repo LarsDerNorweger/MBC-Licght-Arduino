@@ -2,6 +2,8 @@
 #include <Arduino.h>
 #endif
 
+#define Interpreter_h
+
 const int PINCOUNT = 20;
 
 struct PIN
@@ -9,33 +11,22 @@ struct PIN
   int enabled;
   int delay;
   int group;
+  unsigned long lastSwitch;
 };
 
-enum States
+enum STATES
 {
   setPIN,
   End = 1024,
-  Error = 2048,
+  UnkownCommand = 2048,
+  WrongArguments = 2049,
   next = 4096,
 };
 
-class Interpreter
-{
-public:
-  Interpreter();
-  void handleMessage();
-  void execute();
+void InitializeInterpreter();
 
-private:
-  States setPin(int inp);
-  States end();
+void handleMessage();
+void execute();
 
-  bool change = false;
-  PIN *m_pins[PINCOUNT];
-  bool Next = false;
-  PIN *data = nullptr;
-
-  int count = 0;
-
-  States state = States::End;
-};
+STATES setPin(int inp);
+STATES end();
