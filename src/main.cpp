@@ -1,5 +1,8 @@
 #include <Arduino.h>
-#include "SerialReceiver.h"
+
+#ifndef Interpreter
+#include "Interpreter.h"
+#endif
 
 struct SerialData
 {
@@ -7,21 +10,20 @@ struct SerialData
   int MODE;
   int VALUE;
 };
-SerialReceiver *ser;
+
+Interpreter *inter = nullptr;
 
 void setup()
 {
   for (int i = 0; i < 22; i++)
-  {
     pinMode(i, OUTPUT);
-    digitalWrite(i, HIGH);
-    ser = new SerialReceiver();
-  }
   Serial.begin(9600);
+  inter = new Interpreter();
 }
 
 void loop()
 {
-  ser->checkForReceive();
-  // put your main code here, to run repeatedly:
+  if (Serial.available())
+    inter->handleMessage();
+  inter->execute();
 }
