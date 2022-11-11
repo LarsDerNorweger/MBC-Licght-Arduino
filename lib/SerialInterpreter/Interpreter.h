@@ -6,27 +6,31 @@
 
 const int PINCOUNT = 20;
 
-struct PIN
+struct Group
 {
-  int enabled;
   int delay;
-  int group;
+  int lastpin;
+  PIN *pins;
   unsigned long lastSwitch;
 };
 
-enum STATES
+struct PIN
 {
-  setPIN,
-  End = 1024,
-  UnkownCommand = 2048,
-  WrongArguments = 2049,
-  next = 4096,
+  boolean enabled;
+  int PINnumber;
 };
 
-void InitializeInterpreter();
+enum MODES
+{
+  setPin = 0x01,
+  setGroup = 0x02,
+};
+Group *InitializeInterpreter(int);
+PIN *generatePinList(int count);
 
-void handleMessage();
-void execute();
+void SetPin(Group *, int, int);
+Group *Reset(Group *, int);
+void togglePIN(PIN *pin);
 
-STATES setPin(int inp);
-STATES end();
+void handleMessage(Group *, char *, int, int);
+void execute(Group *);

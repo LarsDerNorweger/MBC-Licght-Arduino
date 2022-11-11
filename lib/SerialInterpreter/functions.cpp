@@ -7,11 +7,17 @@
 #include "functions.h"
 #endif
 
-void blink(int pin, int period, int *enabled, unsigned long *lasttime)
+boolean blink(int pin, int period, int *enabled, unsigned long *lasttime)
 {
   unsigned long now = millis();
   if (now - *lasttime < (unsigned long)period)
-    return;
+    return false;
   *enabled = *enabled ? 0 : 1;
   *lasttime = now;
+  return true
+}
+
+void switchThroughArray(int **pins, int lastpin, int count,int lasttime, int delay)
+{
+  if (lastpin + 1 >)
 }
