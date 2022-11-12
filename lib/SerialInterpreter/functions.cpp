@@ -14,10 +14,9 @@ boolean blink(int pin, int period, int *enabled, unsigned long *lasttime)
     return false;
   *enabled = *enabled ? 0 : 1;
   *lasttime = now;
-  return true
+  return true;
 }
 
-void switchThroughArray(int **pins, int lastpin, int count,int lasttime, int delay)
+void switchThroughArray(int **pins, int lastpin, int count, int lasttime, int delay)
 {
-  if (lastpin + 1 >)
 }

@@ -8,10 +8,7 @@ The communication is driven by SerialPort.
 
 style by csv
 
-
-
 Lenght,mode,
-
 
 $PIN,$ENABLED,$CHANGETIME,$GROUP
 

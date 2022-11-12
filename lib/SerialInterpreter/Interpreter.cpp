@@ -6,55 +6,55 @@
 #include "Interpreter.h"
 #endif
 
-#ifndef functions_ - h
-#include "functions.h"
-#endif
-
-Group *InitializeInterpreter(int pincount)
+STATE checkCommand(SerialData *data, STATE mode)
 {
-  Group *res = new Group[pincount];
-  Group *g;
-  for (int i = 0; i < pincount; i++)
+
+  switch (mode)
   {
-    g = new Group();
-    g->delay = 0;
-    g->lastSwitch = 0;
-    g->lastpin = -1;
-    g->pins = generatePinList(i + 1);
-    res[i] = *g;
+  case STATE::setGroup:
+    if ((int)data->data[1] + 4 == data->dataLength)
+      return STATE::OK;
+    return STATE ::inkonsitentCommand;
+
+  default:
+    return STATE::unkown;
   }
-  return res;
 }
 
-PIN *generatePinList(int count)
+SerialResponse *handleMessage(Group *conf, SerialData *data, int pinCount)
 {
-  PIN *res = new PIN[count];
-  PIN *p;
-  for (int i = 0; i < count; i++)
+  STATE mode = (STATE)data->data[0];
+  // Group g;
+  STATE res = checkCommand(data, mode);
+
+  if (res != STATE::OK)
   {
-    p = new PIN();
-    p->enabled = 0;
-    p->PINnumber = -1;
-    res[i] = *p;
+    SerialResponse *r = new SerialResponse;
+    r->state = res;
+    r->dataLenght = 0;
+    return r;
   }
-  return res;
-};
 
-Group *Reset(Group *group, int count)
-{
-  for (int i = 0; i < count; i++)
+  switch (mode)
   {
-    group->pins[i].enabled = 0;
-    group->pins[i].PINnumber = -1;
+  case STATE::setGroup:
+    return handleGroupSet(conf, data, pinCount);
+
+  default:
+    SerialResponse *r = new SerialResponse;
+    r->state = STATE::unkown;
+    r->dataLenght = 0;
+    return r;
   }
-};
-
-void SetPin(Group *conf, int grpNum, int pinNum){
-
-};
-
-void togglePIN(PIN *pin)
-{
 }
-void handleMessage(Group *conf, char *inp, int count, int pinCount) {}
+
+SerialResponse *handleGroupSet(Group *conf, SerialData *data, int pinCount)
+{
+  SerialResponse *r = new SerialResponse;
+  r->state = STATE::OK;
+  r->dataLenght = data->dataLength;
+  r->data = data->data;
+  return r;
+}
+
 void execute(Group *conf, int pincount){};
